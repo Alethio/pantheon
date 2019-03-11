@@ -40,10 +40,35 @@ The examples contains all the needed dependencies like:
 More details about installing and running are available in the github [repository](https://github.com/Alethio/ethstats-network-server).
 #### EthStats-CLI
 
-After the server is up and running the next step is to install `ethstats-cli` for the nodes in the network. This can be done through: 
+After the server is up and running the next step is to install `ethstats-cli` for the nodes in the network. This can be done through NPM or Docker.
+
+IMPORTANT: Make sure when you run `ethstats-cli` for the first time to add the `--server-url` flag to connect to your server like in the examples bellow. By default it will connect to the server that consumes data for the Ethereum mainnet.
+ 
 * [NPM](https://github.com/Alethio/ethstats-cli#install) - the package needs to be installed globally and also can be used as a [daemon](https://github.com/Alethio/ethstats-cli#daemon)
+  ```sh
+  npm install -g ethstats-cli
+  ```
+  the run the app:
+  ```sh
+  $ ethstats-cli --server-url http://your-server:port
+  ```  
+
+  On the first run of the app the first thing it does is to register the Pantheon node to your server. 
+  For this you will be asked about an email address and node name.
+  
+
 * [Docker](https://github.com/Alethio/ethstats-cli#docker) - images available on [docker hub](https://hub.docker.com/r/alethio/ethstats-cli)
+  ```sh
+  docker run -d \
+  --restart always \
+  --net host \
+  -v /opt/ethstats-cli/:/root/.config/configstore/ \
+  alethio/ethstats-cli --register --account-email your@email.com --node-name your_node_name --server-url http://your-server:port
+  ```
+
+  This is a non interactive method, thus the registration of the Pantheon node is done automatically through the `--register` flag.  
+
+The app is configured by default to connect to the Pantheon node on your local host (http://localhost:8545).
+To connect to a node running on a different host see `--client-url` under [CLI Options](https://github.com/Alethio/ethstats-cli#cli-options).
 
 More details about installing and running are available in the github [repository](https://github.com/Alethio/ethstats-cli).  
-
-IMPORTANT: Make sure when you run `ethstats-cli` for the first time to add the `--server-url` flag to connect to your server. By default it connects to the server that consumes data for the Ethereum mainnet.
