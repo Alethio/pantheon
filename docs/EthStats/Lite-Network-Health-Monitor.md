@@ -22,6 +22,18 @@ The tool can be seen in action for the Ethereum mainnet network at [net.ethstats
 * [ethstats-network-server](https://github.com/Alethio/ethstats-network-server) - service that consumes the data received from the nodes through the client app 
 * [ethstats-network-dashboard](https://github.com/Alethio/ethstats-network-dashboard) - front end dashboard  
 
+## Installation 
+
+### Pre-requisities 
+
+[Docker]
+
+### Server
+
+To 
+
+----------------------------------------
+
 ## Installation
 
 The installation process is done through multiple steps. First the server needs to be installed with its dependencies and then for every node in the network the client app `ethstats-cli` is needed.
@@ -38,6 +50,7 @@ The examples contains all the needed dependencies like:
 * [Redis](https://redis.io/) - if persistence is needed
 
 More details about installing and running are available in the github [repository](https://github.com/Alethio/ethstats-network-server).
+
 #### EthStats-CLI
 
 After the server is up and running the next step is to install `ethstats-cli` for the nodes in the network. This can be done through NPM or Docker.
