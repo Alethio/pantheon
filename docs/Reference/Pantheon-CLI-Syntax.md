@@ -1,4 +1,4 @@
-description: Pantheon commande line interface reference
+description: Pantheon command line interface reference
 <!--- END of page meta data -->
 
 # Pantheon Command Line

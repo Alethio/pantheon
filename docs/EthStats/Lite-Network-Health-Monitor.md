@@ -30,7 +30,23 @@ The tool can be seen in action for the Ethereum mainnet network at [net.ethstats
 
 ### Server
 
-To 
+Git clone ethstats-network-server 
+
+Go to /ethstats-network-server/docker/lite-mode/memory-persistence 
+
+`docker-compose up`
+
+### Pantheon 
+
+With Websockets enabled in Docker:
+
+docker run -p 8546:8546 --mount type=bind,source=/tmp/datadir,target=/var/lib/pantheon pegasyseng/pantheon:latest --miner-enabled --miner-coinbase fe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins="all" --rpc-ws-enabled --network=dev
+
+### Client 
+
+docker run -it --restart always --net host -v /Users/madelinemurray/opt/ethstats-cli/:/root/.config/configstore/ alethio/ethstats-cli --register --account-email madeline.murray@consensys.net --node-name your_node_name --server-url http://localhost:3000 --client-url ws://127.0.0.1:8546
+
+docker stop etc 
 
 ----------------------------------------
 
