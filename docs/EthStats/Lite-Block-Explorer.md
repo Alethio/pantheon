@@ -1,13 +1,16 @@
 description: Lite Block Explorer
 <!--- END of page meta data -->
 
-# Lite Block Explorer
+# EthStats Lite Block Explorer
 
-Use the [Lite Block Explorer](https://lite.ethstats.io/) to explore blockchain data at the block, transaction, 
+Use the [EthStats Lite Block Explorer](https://lite.ethstats.io/) to explore blockchain data at the block, transaction, 
 and account level.
  
 The Lite Block Explorer is a client-side only web application that connects to an Ethereum 
 JSON RPC node. No servers, hosting, or trusting third parties to display the blockchain data. 
+
+!!! note 
+     The EthStats Lite Block Explorer is an [Alethio product](https://aleth.io/).
 
 ## Prerequisites
 
@@ -86,5 +89,5 @@ To run the Lite Block Explorer using the Docker image:
    
 ## Lite Block Explorer Documentation 
 
-The [GitHub repository](https://github.com/Alethio/ethstats-lite-explorer) contains more documentation,
-including details on deploying the Lite Block Explorer. 
+The EthStats Lite Block Explorer [GitHub repository](https://github.com/Alethio/ethstats-lite-explorer) 
+contains more documentation, including details on deploying the Lite Block Explorer. 

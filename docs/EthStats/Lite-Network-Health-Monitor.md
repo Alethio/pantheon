@@ -3,30 +3,47 @@ description: Lite Network Health Monitor
 
 # Lite Network Health Monitor
 
-This is a tool that helps monitor the health of a private network by displaying real time and historical statistics 
-from the perspective of its nodes.
+Use the EthStats Lite Health Monitor to monitor the health of private networks by displaying real time and 
+historical statistics about the network nodes.
 
-The lite version will persist either in memory or Redis only a fixed number of blocks, by default the last 3000. The full version requires PostgreSQL or Cassandra as persistence storage and has a more complex configuration to run its services in cluster mode.
+The lite version supports in-memory persistence or using Redis to persist a fixed number of blocks (by default,
+the last 3000. The full version requires PostgreSQL or Cassandra to support persistence storage. The full 
+version has a more complex configuration to run the services in cluster mode.
 
-The tool can be seen in action for the Ethereum mainnet network at [net.ethstats.io](https://net.ethstats.io)
+View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.io)
+
+!!! note 
+     The EthStats Lite Block Explorer is an [Alethio product](https://aleth.io/).
 
 ## Statistics Overview
-* List of nodes in the network with specific metrics regarding its last received block like number, hash, transaction and uncle count, block time and propagation time and other metrics like connected peers, if it's mining or not, hash rate, latency, uptime.
-* Charts for Block Time, Block Difficulty, Block Gas Limit, Block Uncles, Block Transactions, Block Gas Used, Block Propagation Histogram and Top miners
+
+Statistics displayed by the Network Health Explorer: 
+
+* Nodes in the network with specific metrics about the last received block such as block number, 
+block hash, transaction count, and uncle count, block time and propagation time 
+* Node information including connected peers, whether the node is  mining, hash rate, latency, and uptime
+* Charts for Block Time, Block Difficulty, Block Gas Limit, Block Uncles, Block Transactions, Block Gas Used, 
+Block Propagation Histogram, and Top Miners
 * IP based geolocation overview
-* Node logs (displays the data sent by a node)
-* Block history (ability to go back in time and playback the block propagation throughout the nodes)
-
-## Github repositories
-* [ethstats-cli](https://github.com/Alethio/ethstats-cli) - client app that extracts data from a node and sends it to the server 
-* [ethstats-network-server](https://github.com/Alethio/ethstats-network-server) - service that consumes the data received from the nodes through the client app 
-* [ethstats-network-dashboard](https://github.com/Alethio/ethstats-network-dashboard) - front end dashboard  
-
-## Installation 
+* Node logs. Node logs display the data sent by a node
+* Block history.  Block history provides the ability to go back in time and playback the block propagation
+ throughout the nodes
 
 ### Pre-requisities 
 
-[Docker]
+[Docker](https://docs.docker.com/install/)
+
+!!! tip
+    The Network Health Monitor has a number of dependencies. Using Docker is the easiest way to demonstrate
+    the using the Network Health Monitor with Pantheon. The [EthStats CLI](https://github.com/Alethio/ethstats-cli) 
+    and [EthStats Network Server](https://github.com/Alethio/ethstats-network-server) documentation describe how 
+    to install the Network Heath Explorer tools. 
+
+## Installation 
+
+### Pre-requisites 
+
+[Docker](https://docs.docker.com/install/)
 
 ### Server
 
@@ -101,3 +118,8 @@ The app is configured by default to connect to the Pantheon node on your local h
 To connect to a node running on a different host see `--client-url` under [CLI Options](https://github.com/Alethio/ethstats-cli#cli-options).
 
 More details about installing and running are available in the github [repository](https://github.com/Alethio/ethstats-cli).  
+
+## Github repositories
+* [ethstats-cli](https://github.com/Alethio/ethstats-cli) - client app that extracts data from a node and sends it to the server 
+* [ethstats-network-server](https://github.com/Alethio/ethstats-network-server) - service that consumes the data received from the nodes through the client app 
+* [ethstats-network-dashboard](https://github.com/Alethio/ethstats-network-dashboard) - front end dashboard  
