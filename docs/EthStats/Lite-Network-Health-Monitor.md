@@ -7,7 +7,7 @@ Use the EthStats Lite Health Monitor to monitor the health of private networks b
 historical statistics about the network nodes.
 
 The lite version supports in-memory persistence or using Redis to persist a fixed number of blocks (by default,
-the last 3000. The full version requires PostgreSQL or Cassandra to support persistence storage. The full 
+3000. The full version requires PostgreSQL or Cassandra to support persistence storage. The full 
 version has a more complex configuration to run the services in cluster mode.
 
 View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.io)
@@ -15,7 +15,7 @@ View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.
 !!! note 
      The EthStats Lite Block Explorer is an [Alethio product](https://aleth.io/).
 
-## Statistics Overview
+## Statistics
 
 Statistics displayed by the Network Health Explorer: 
 
@@ -28,8 +28,20 @@ Block Propagation Histogram, and Top Miners
 * Node logs. Node logs display the data sent by a node
 * Block history.  Block history provides the ability to go back in time and playback the block propagation
  throughout the nodes
+ 
+## Components 
 
-### Pre-requisities 
+The Network Health Monitor consists of: 
+
+* [Server](https://github.com/Alethio/ethstats-network-server). Consumes data received from nodes from the 
+client. 
+
+* [Client](https://github.com/Alethio/ethstats-cli). A client must be started for each node in the network.
+The client extracts data from the node and sends it to the server
+
+* [Dashboard](https://github.com/Alethio/ethstats-network-dashboard). Dashboard displaying [statistics](#statistics).
+
+## Pre-requisities 
 
 [Docker](https://docs.docker.com/install/)
 
@@ -39,87 +51,64 @@ Block Propagation Histogram, and Top Miners
     and [EthStats Network Server](https://github.com/Alethio/ethstats-network-server) documentation describe how 
     to install the Network Heath Explorer tools. 
 
-## Installation 
+## Running Lite Network Health Monitor for a Pantheon Node
 
-### Pre-requisites 
+The example describes how to run the Lite Network Heath Monitor for a single Pantheon node. To run the  
+Lite Network Health Monitor for a network of nodes, a [client](#3-client) must be started for each node. 
 
-[Docker](https://docs.docker.com/install/)
+### 1. Server
 
-### Server
+Start the server using in-memory persistence: 
 
-Git clone ethstats-network-server 
+1. Clone the server repository: 
 
-Go to /ethstats-network-server/docker/lite-mode/memory-persistence 
+   ```bash
+   git clone https://github.com/Alethio/ethstats-network-server.git
+   ```
 
-`docker-compose up`
+2. Go to the `/ethstats-network-server/docker/lite-mode/memory-persistence` directory. 
 
-### Pantheon 
+3. Use the provided `docker-compose` file to start the server: 
 
-With Websockets enabled in Docker:
+   ```bash
+   docker-compose up
+   ```
+   
+!!! tip
+    A `docker-compose` file is provided in the `ethstats-network-server/docker/lite-mode/redis-persistence`
+    directory to run the server using Redis to persist a fixed number of blocks (default is 3000).
 
-docker run -p 8546:8546 --mount type=bind,source=/tmp/datadir,target=/var/lib/pantheon pegasyseng/pantheon:latest --miner-enabled --miner-coinbase fe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins="all" --rpc-ws-enabled --network=dev
+### 2. Pantheon 
 
-### Client 
+Start Pantheon with Websockets enabled:
 
-docker run -it --restart always --net host -v /Users/madelinemurray/opt/ethstats-cli/:/root/.config/configstore/ alethio/ethstats-cli --register --account-email madeline.murray@consensys.net --node-name your_node_name --server-url http://localhost:3000 --client-url ws://127.0.0.1:8546
+```bash
+docker run -p 8546:8546 --mount type=bind,source=/<pantheondata-path>,target=/var/lib/pantheon pegasyseng/pantheon:latest --miner-enabled --miner-coinbase fe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins="all" --rpc-ws-enabled --network=dev
+```
 
-docker stop etc 
+Where `<pantheondata-path>` is the volume to which the node data is saved. 
 
-----------------------------------------
+### 3. Client 
 
-## Installation
+Start the client for the Pantheon node:  
 
-The installation process is done through multiple steps. First the server needs to be installed with its dependencies and then for every node in the network the client app `ethstats-cli` is needed.
+```bash
+docker run -it --restart always --net host -v /<configurationfiles-path>/opt/ethstats-cli/:/root/.config/configstore/ alethio/ethstats-cli --register --account-email <email> --node-name <node_name> --server-url http://localhost:3000 --client-url ws://127.0.0.1:8546
+```
 
-#### Server
+Where: 
 
-In the server's repo there are 2 examples of `docker-compose` files to set it up in lite mode with:
-* [Memory persistence](https://github.com/Alethio/ethstats-network-server/blob/master/docker/lite-mode/memory-persistence/docker-compose.yml) - the consumed data will be persisted in memory in a json data model and in case of a crash/restart the data is lost
-* [Redis persistence](https://github.com/Alethio/ethstats-network-server/blob/master/docker/lite-mode/redis-persistence/docker-compose.yml) - the consumed data will be persisted into Redis 
+* `<configurationfiles-path>` is the volume where the client configuration files are saved in the `opt/ethstats-cli` directory. 
+* `--server-url` specifies [your server](#1-server). The default is the server that consumes data for the Ethereum MainNet.
+* `--register` specifies the registration of the Pantheon node is done automatically with the specified `<email>` and `<node_name>`. 
+Registering the node is only required the first time the client is started for the node.
+* `--client-url` specifies the WebSockets URL for the Pantheon node.    
 
-The examples contains all the needed dependencies like: 
-* [Deepstream](https://github.com/deepstreamIO/deepstream.io) - for sending event based data to the dashboard in real time
-* [ethstats-network-dashboard](https://github.com/Alethio/ethstats-network-dashboard) - front end dashboard
-* [Redis](https://redis.io/) - if persistence is needed
+### 4. Dashboard 
 
-More details about installing and running are available in the github [repository](https://github.com/Alethio/ethstats-network-server).
+To display the Network Health Monitor dashboard, open `localhost` in your browser. 
 
-#### EthStats-CLI
+### Stopping and Cleaning Up Resources
 
-After the server is up and running the next step is to install `ethstats-cli` for the nodes in the network. This can be done through NPM or Docker.
+When you've finished running the Network Health Monitor, stop and delete the containers.  
 
-IMPORTANT: Make sure when you run `ethstats-cli` for the first time to add the `--server-url` flag to connect to your server like in the examples bellow. By default it will connect to the server that consumes data for the Ethereum mainnet.
- 
-* [NPM](https://github.com/Alethio/ethstats-cli#install) - the package needs to be installed globally and also can be used as a [daemon](https://github.com/Alethio/ethstats-cli#daemon)
-  ```sh
-  npm install -g ethstats-cli
-  ```
-  the run the app:
-  ```sh
-  $ ethstats-cli --server-url http://your-server:port
-  ```  
-
-  On the first run of the app the first thing it does is to register the Pantheon node to your server. 
-  For this you will be asked about an email address and node name.
-  
-
-* [Docker](https://github.com/Alethio/ethstats-cli#docker) - images available on [docker hub](https://hub.docker.com/r/alethio/ethstats-cli)
-  ```sh
-  docker run -d \
-  --restart always \
-  --net host \
-  -v /opt/ethstats-cli/:/root/.config/configstore/ \
-  alethio/ethstats-cli --register --account-email your@email.com --node-name your_node_name --server-url http://your-server:port
-  ```
-
-  This is a non interactive method, thus the registration of the Pantheon node is done automatically through the `--register` flag.  
-
-The app is configured by default to connect to the Pantheon node on your local host (http://localhost:8545).
-To connect to a node running on a different host see `--client-url` under [CLI Options](https://github.com/Alethio/ethstats-cli#cli-options).
-
-More details about installing and running are available in the github [repository](https://github.com/Alethio/ethstats-cli).  
-
-## Github repositories
-* [ethstats-cli](https://github.com/Alethio/ethstats-cli) - client app that extracts data from a node and sends it to the server 
-* [ethstats-network-server](https://github.com/Alethio/ethstats-network-server) - service that consumes the data received from the nodes through the client app 
-* [ethstats-network-dashboard](https://github.com/Alethio/ethstats-network-dashboard) - front end dashboard  
