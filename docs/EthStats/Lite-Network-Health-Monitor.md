@@ -3,12 +3,11 @@ description: Lite Network Health Monitor
 
 # Lite Network Health Monitor
 
-Use the EthStats Lite Health Monitor to monitor the health of private networks by displaying real time and 
+Use the EthStats Lite Network Health Monitor to monitor the health of private networks by displaying real time and 
 historical statistics about the network nodes.
 
 The lite version supports in-memory persistence or using Redis to persist a fixed number of blocks (by default,
-3000. The full version requires PostgreSQL or Cassandra to support persistence storage. The full 
-version has a more complex configuration to run the services in cluster mode.
+3000). 
 
 View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.io)
 
@@ -17,23 +16,24 @@ View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.
 
 ## Statistics
 
-Statistics displayed by the Network Health Explorer: 
+Statistics displayed by the Network Health Monitor include: 
 
-* Nodes in the network with specific metrics about the last received block such as block number, 
-block hash, transaction count, and uncle count, block time and propagation time 
-* Node information including connected peers, whether the node is  mining, hash rate, latency, and uptime
+* Nodes in the network. Metrics for nodes include:
+    - Information about the last received block such as block number, 
+block hash, transaction count, uncle count, block time and propagation time 
+    - Connected peers, whether the node is mining, hash rate, latency, and uptime
 * Charts for Block Time, Block Difficulty, Block Gas Limit, Block Uncles, Block Transactions, Block Gas Used, 
 Block Propagation Histogram, and Top Miners
 * IP based geolocation overview
 * Node logs. Node logs display the data sent by a node
 * Block history.  Block history provides the ability to go back in time and playback the block propagation
- throughout the nodes
+ through the nodes
  
 ## Components 
 
 The Network Health Monitor consists of: 
 
-* [Server](https://github.com/Alethio/ethstats-network-server). Consumes data received from nodes from the 
+* [Server](https://github.com/Alethio/ethstats-network-server). Consumes node data received from the 
 client. 
 
 * [Client](https://github.com/Alethio/ethstats-cli). A client must be started for each node in the network.
@@ -47,13 +47,14 @@ The client extracts data from the node and sends it to the server
 
 !!! tip
     The Network Health Monitor has a number of dependencies. Using Docker is the easiest way to demonstrate
-    the using the Network Health Monitor with Pantheon. The [EthStats CLI](https://github.com/Alethio/ethstats-cli) 
-    and [EthStats Network Server](https://github.com/Alethio/ethstats-network-server) documentation describe how 
-    to install the Network Heath Explorer tools. 
+    the using the Network Health Monitor with Pantheon. The [EthStats CLI](https://github.com/Alethio/ethstats-cli),
+    [EthStats Network Server](https://github.com/Alethio/ethstats-network-server), and [EthStats Network
+    Dashboard](https://github.com/Alethio/ethstats-network-dashboard) documentation describes how to install 
+    the Network Heath Explorer tools. 
 
 ## Running Lite Network Health Monitor for a Pantheon Node
 
-The example describes how to run the Lite Network Heath Monitor for a single Pantheon node. To run the  
+This  example describes how to run the Lite Network Heath Monitor for a single Pantheon node. To run the 
 Lite Network Health Monitor for a network of nodes, a [client](#3-client) must be started for each node. 
 
 ### 1. Server
@@ -62,25 +63,29 @@ Start the server using in-memory persistence:
 
 1. Clone the server repository: 
 
-   ```bash
-   git clone https://github.com/Alethio/ethstats-network-server.git
-   ```
+    ```bash
+    git clone https://github.com/Alethio/ethstats-network-server.git
+    ```
 
-2. Go to the `/ethstats-network-server/docker/lite-mode/memory-persistence` directory. 
+2. Change into the `/ethstats-network-server/docker/lite-mode/memory-persistence` directory:
+   
+    ```bash
+    cd ethstats-network-server/docker/lite-mode/memory-persistence
+    ```
 
 3. Use the provided `docker-compose` file to start the server: 
 
-   ```bash
-   docker-compose up
-   ```
+    ```bash
+    docker-compose up
+    ```
    
 !!! tip
-    A `docker-compose` file is provided in the `ethstats-network-server/docker/lite-mode/redis-persistence`
+    A `docker-compose` file is also provided in the `ethstats-network-server/docker/lite-mode/redis-persistence`
     directory to run the server using Redis to persist a fixed number of blocks (default is 3000).
 
 ### 2. Pantheon 
 
-Start Pantheon with Websockets enabled:
+Start Pantheon in development mode with Websockets enabled:
 
 ```bash
 docker run -p 8546:8546 --mount type=bind,source=/<pantheondata-path>,target=/var/lib/pantheon pegasyseng/pantheon:latest --miner-enabled --miner-coinbase fe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins="all" --rpc-ws-enabled --network=dev
@@ -106,7 +111,7 @@ Registering the node is only required the first time the client is started for t
 
 ### 4. Dashboard 
 
-To display the Network Health Monitor dashboard, open `localhost` in your browser. 
+To display the Network Health Monitor dashboard, open [`localhost`](http://localhost) in your browser. 
 
 ### Stopping and Cleaning Up Resources
 
