@@ -21,10 +21,12 @@ import tech.pegasys.pantheon.crypto.SECP256K1;
 import tech.pegasys.pantheon.ethereum.core.Address;
 import tech.pegasys.pantheon.ethereum.core.InMemoryStorageProvider;
 import tech.pegasys.pantheon.ethereum.core.MiningParametersTestBuilder;
+import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.eth.sync.SynchronizerConfiguration;
 import tech.pegasys.pantheon.ethereum.mainnet.PrecompiledContract;
 import tech.pegasys.pantheon.metrics.noop.NoOpMetricsSystem;
+import tech.pegasys.pantheon.testutil.TestClock;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -44,6 +46,7 @@ public class PrivacyTest {
     PrivacyParameters privacyParameters = PrivacyParameters.noPrivacy();
     privacyParameters.setPrivacyAddress(ADDRESS);
     privacyParameters.setEnabled(true);
+    privacyParameters.enablePrivateDB(dataDir);
 
     MainnetPantheonController mainnetPantheonController =
         (MainnetPantheonController)
@@ -56,7 +59,9 @@ public class PrivacyTest {
                 SECP256K1.KeyPair.generate(),
                 new NoOpMetricsSystem(),
                 privacyParameters,
-                dataDir);
+                dataDir,
+                TestClock.fixed(),
+                PendingTransactions.MAX_PENDING_TRANSACTIONS);
 
     Address privacyContractAddress = Address.privacyPrecompiled(ADDRESS);
     PrecompiledContract precompiledContract =

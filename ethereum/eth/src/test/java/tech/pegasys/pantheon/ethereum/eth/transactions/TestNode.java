@@ -23,6 +23,7 @@ import tech.pegasys.pantheon.ethereum.ProtocolContext;
 import tech.pegasys.pantheon.ethereum.chain.GenesisState;
 import tech.pegasys.pantheon.ethereum.chain.MutableBlockchain;
 import tech.pegasys.pantheon.ethereum.core.BlockHashFunction;
+import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.core.Transaction;
 import tech.pegasys.pantheon.ethereum.core.TransactionPool;
@@ -46,6 +47,7 @@ import tech.pegasys.pantheon.ethereum.p2p.peers.PeerBlacklist;
 import tech.pegasys.pantheon.ethereum.p2p.wire.messages.DisconnectMessage.DisconnectReason;
 import tech.pegasys.pantheon.ethereum.worldstate.WorldStateArchive;
 import tech.pegasys.pantheon.metrics.noop.NoOpMetricsSystem;
+import tech.pegasys.pantheon.testutil.TestClock;
 import tech.pegasys.pantheon.util.bytes.BytesValue;
 
 import java.io.Closeable;
@@ -118,9 +120,9 @@ public class TestNode implements Closeable {
                         this.kp,
                         networkingConfiguration,
                         capabilities,
-                        () -> true,
                         new PeerBlacklist(),
                         new NoOpMetricsSystem(),
+                        Optional.empty(),
                         Optional.empty()))
             .metricsSystem(new NoOpMetricsSystem())
             .build();
@@ -131,7 +133,12 @@ public class TestNode implements Closeable {
 
     final EthContext ethContext = ethProtocolManager.ethContext();
     transactionPool =
-        TransactionPoolFactory.createTransactionPool(protocolSchedule, protocolContext, ethContext);
+        TransactionPoolFactory.createTransactionPool(
+            protocolSchedule,
+            protocolContext,
+            ethContext,
+            TestClock.fixed(),
+            PendingTransactions.MAX_PENDING_TRANSACTIONS);
     networkRunner.start();
 
     selfPeer = new DefaultPeer(id(), endpoint());

@@ -20,6 +20,7 @@ import tech.pegasys.pantheon.cli.EthNetworkConfig;
 import tech.pegasys.pantheon.cli.PantheonControllerBuilder;
 import tech.pegasys.pantheon.controller.KeyPairUtil;
 import tech.pegasys.pantheon.controller.PantheonController;
+import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.eth.sync.SynchronizerConfiguration;
 import tech.pegasys.pantheon.metrics.MetricsSystem;
 import tech.pegasys.pantheon.metrics.noop.NoOpMetricsSystem;
@@ -69,6 +70,7 @@ public class ThreadPantheonNodeRunner implements PantheonNodeRunner {
               .devMode(node.isDevMode())
               .nodePrivateKeyFile(KeyPairUtil.getDefaultKeyFile(node.homeDirectory()))
               .metricsSystem(noOpMetricsSystem)
+              .maxPendingTransactions(PendingTransactions.MAX_PENDING_TRANSACTIONS)
               .build();
     } catch (final IOException e) {
       throw new RuntimeException("Error building PantheonController", e);
@@ -95,9 +97,7 @@ public class ThreadPantheonNodeRunner implements PantheonNodeRunner {
             .p2pEnabled(node.isP2pEnabled())
             .build();
 
-    nodeExecutor.submit(runner::execute);
-
-    waitForPortsFile(node.homeDirectory().toAbsolutePath());
+    runner.start();
 
     pantheonRunners.put(node.getName(), runner);
   }

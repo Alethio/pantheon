@@ -14,6 +14,9 @@ package tech.pegasys.pantheon.ethereum.core;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import tech.pegasys.pantheon.crypto.SECP256K1;
+import tech.pegasys.pantheon.ethereum.privacy.PrivateStateStorage;
+import tech.pegasys.pantheon.ethereum.privacy.PrivateTransactionStorage;
 import tech.pegasys.pantheon.ethereum.storage.StorageProvider;
 import tech.pegasys.pantheon.ethereum.storage.keyvalue.RocksDbStorageProvider;
 import tech.pegasys.pantheon.ethereum.worldstate.WorldStateArchive;
@@ -31,25 +34,39 @@ public class PrivacyParameters {
   private static final String ENCLAVE_URL = "http://localhost:8888";
   public static final URI DEFAULT_ENCLAVE_URL = URI.create(ENCLAVE_URL);
   private final String PRIVATE_DATABASE_PATH = "private";
+  private final String PRIVATE_STATE_DATABASE_PATH = "privateState";
 
   private Integer privacyAddress;
   private boolean enabled;
   private String url;
-  private String publicKey;
-  private File publicKeyFile;
+  private String enclavePublicKey;
+  private File enclavePublicKeyFile;
+  private SECP256K1.KeyPair signingKeyPair;
   private WorldStateArchive privateWorldStateArchive;
+  private StorageProvider privateStorageProvider;
 
-  public String getPublicKey() {
-    return publicKey;
+  private PrivateTransactionStorage privateTransactionStorage;
+  private PrivateStateStorage privateStateStorage;
+
+  public String getEnclavePublicKey() {
+    return enclavePublicKey;
   }
 
-  public File getPublicKeyFile() {
-    return publicKeyFile;
+  public File getEnclavePublicKeyFile() {
+    return enclavePublicKeyFile;
   }
 
-  public void setPublicKeyUsingFile(final File publicKeyFile) throws IOException {
-    this.publicKeyFile = publicKeyFile;
-    this.publicKey = Files.asCharSource(publicKeyFile, UTF_8).read();
+  public void setEnclavePublicKeyUsingFile(final File publicKeyFile) throws IOException {
+    this.enclavePublicKeyFile = publicKeyFile;
+    this.enclavePublicKey = Files.asCharSource(publicKeyFile, UTF_8).read();
+  }
+
+  public void setSigningKeyPair(final SECP256K1.KeyPair signingKeyPair) {
+    this.signingKeyPair = signingKeyPair;
+  }
+
+  public SECP256K1.KeyPair getSigningKeyPair() {
+    return signingKeyPair;
   }
 
   public static PrivacyParameters noPrivacy() {
@@ -91,14 +108,32 @@ public class PrivacyParameters {
 
   public void enablePrivateDB(final Path path) throws IOException {
     final Path privateDbPath = path.resolve(PRIVATE_DATABASE_PATH);
-    final StorageProvider privateStorageProvider =
+    this.privateStorageProvider =
         RocksDbStorageProvider.create(privateDbPath, new NoOpMetricsSystem());
     final WorldStateStorage privateWorldStateStorage =
         privateStorageProvider.createWorldStateStorage();
     this.privateWorldStateArchive = new WorldStateArchive(privateWorldStateStorage);
+
+    final Path privateStateDbPath = path.resolve(PRIVATE_STATE_DATABASE_PATH);
+    final StorageProvider privateStateStorageProvider =
+        RocksDbStorageProvider.create(privateStateDbPath, new NoOpMetricsSystem());
+    this.privateTransactionStorage = privateStateStorageProvider.createPrivateTransactionStorage();
+    this.privateStateStorage = privateStateStorageProvider.createPrivateStateStorage();
+  }
+
+  public PrivateTransactionStorage getPrivateTransactionStorage() {
+    return privateTransactionStorage;
+  }
+
+  public PrivateStateStorage getPrivateStateStorage() {
+    return privateStateStorage;
   }
 
   public WorldStateArchive getPrivateWorldStateArchive() {
     return privateWorldStateArchive;
+  }
+
+  public StorageProvider getPrivateStorageProvider() {
+    return this.privateStorageProvider;
   }
 }

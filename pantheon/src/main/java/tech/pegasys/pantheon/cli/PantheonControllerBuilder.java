@@ -19,6 +19,7 @@ import tech.pegasys.pantheon.config.GenesisConfigFile;
 import tech.pegasys.pantheon.controller.PantheonController;
 import tech.pegasys.pantheon.crypto.SECP256K1.KeyPair;
 import tech.pegasys.pantheon.ethereum.core.MiningParameters;
+import tech.pegasys.pantheon.ethereum.core.PendingTransactions;
 import tech.pegasys.pantheon.ethereum.core.PrivacyParameters;
 import tech.pegasys.pantheon.ethereum.eth.sync.SynchronizerConfiguration;
 import tech.pegasys.pantheon.ethereum.storage.StorageProvider;
@@ -28,6 +29,7 @@ import tech.pegasys.pantheon.metrics.MetricsSystem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Clock;
 
 public class PantheonControllerBuilder {
 
@@ -39,6 +41,7 @@ public class PantheonControllerBuilder {
   private File nodePrivateKeyFile;
   private MetricsSystem metricsSystem;
   private PrivacyParameters privacyParameters;
+  private Integer maxPendingTransactions = PendingTransactions.MAX_PENDING_TRANSACTIONS;
 
   public PantheonControllerBuilder synchronizerConfiguration(
       final SynchronizerConfiguration synchronizerConfiguration) {
@@ -76,6 +79,11 @@ public class PantheonControllerBuilder {
     return this;
   }
 
+  public PantheonControllerBuilder maxPendingTransactions(final Integer maxPendingTransactions) {
+    this.maxPendingTransactions = maxPendingTransactions;
+    return this;
+  }
+
   public PantheonControllerBuilder privacyParameters(final PrivacyParameters privacyParameters) {
     this.privacyParameters = privacyParameters;
     return this;
@@ -85,6 +93,7 @@ public class PantheonControllerBuilder {
     // instantiate a controller with mainnet config if no genesis file is defined
     // otherwise use the indicated genesis file
     final KeyPair nodeKeys = loadKeyPair(nodePrivateKeyFile);
+    privacyParameters.setSigningKeyPair(nodeKeys);
 
     final StorageProvider storageProvider =
         RocksDbStorageProvider.create(homePath.resolve(DATABASE_PATH), metricsSystem);
@@ -96,7 +105,7 @@ public class PantheonControllerBuilder {
       final String genesisConfig = ethNetworkConfig.getGenesisConfig();
       genesisConfigFile = GenesisConfigFile.fromConfig(genesisConfig);
     }
-
+    Clock clock = Clock.systemUTC();
     return PantheonController.fromConfig(
         genesisConfigFile,
         synchronizerConfiguration,
@@ -106,6 +115,8 @@ public class PantheonControllerBuilder {
         nodeKeys,
         metricsSystem,
         privacyParameters,
-        homePath);
+        homePath,
+        clock,
+        maxPendingTransactions);
   }
 }

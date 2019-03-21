@@ -19,14 +19,18 @@ import tech.pegasys.pantheon.ethereum.eth.manager.EthContext;
 import tech.pegasys.pantheon.ethereum.eth.messages.EthPV62;
 import tech.pegasys.pantheon.ethereum.mainnet.ProtocolSchedule;
 
+import java.time.Clock;
+
 public class TransactionPoolFactory {
 
   public static TransactionPool createTransactionPool(
       final ProtocolSchedule<?> protocolSchedule,
       final ProtocolContext<?> protocolContext,
-      final EthContext ethContext) {
+      final EthContext ethContext,
+      final Clock clock,
+      final int maxPendingTransactions) {
     final PendingTransactions pendingTransactions =
-        new PendingTransactions(PendingTransactions.MAX_PENDING_TRANSACTIONS);
+        new PendingTransactions(maxPendingTransactions, clock);
 
     final PeerTransactionTracker transactionTracker = new PeerTransactionTracker();
     final TransactionsMessageSender transactionsMessageSender =

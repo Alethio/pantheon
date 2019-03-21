@@ -103,7 +103,9 @@ public class MainnetPantheonController implements PantheonController<Void> {
       final KeyPair nodeKeys,
       final PrivacyParameters privacyParameters,
       final Path dataDirectory,
-      final MetricsSystem metricsSystem) {
+      final MetricsSystem metricsSystem,
+      final Clock clock,
+      final int maxPendingTransactions) {
 
     final GenesisState genesisState = GenesisState.fromConfig(genesisConfig, protocolSchedule);
     final ProtocolContext<Void> protocolContext =
@@ -147,7 +149,11 @@ public class MainnetPantheonController implements PantheonController<Void> {
 
     final TransactionPool transactionPool =
         TransactionPoolFactory.createTransactionPool(
-            protocolSchedule, protocolContext, ethProtocolManager.ethContext());
+            protocolSchedule,
+            protocolContext,
+            ethProtocolManager.ethContext(),
+            clock,
+            maxPendingTransactions);
 
     final ExecutorService minerThreadPool = Executors.newCachedThreadPool();
     final EthHashMinerExecutor executor =
@@ -160,7 +166,7 @@ public class MainnetPantheonController implements PantheonController<Void> {
             new DefaultBlockScheduler(
                 MainnetBlockHeaderValidator.MINIMUM_SECONDS_SINCE_PARENT,
                 MainnetBlockHeaderValidator.TIMESTAMP_TOLERANCE_S,
-                Clock.systemUTC()));
+                clock));
 
     final EthHashMiningCoordinator miningCoordinator =
         new EthHashMiningCoordinator(blockchain, executor, syncState);
@@ -189,6 +195,9 @@ public class MainnetPantheonController implements PantheonController<Void> {
           }
           try {
             storageProvider.close();
+            if (privacyParameters.getPrivateStorageProvider() != null) {
+              privacyParameters.getPrivateStorageProvider().close();
+            }
           } catch (final IOException e) {
             LOG.error("Failed to close storage provider", e);
           }
