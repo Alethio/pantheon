@@ -9,10 +9,13 @@ historical statistics about the network nodes.
 The lite version supports in-memory persistence or using Redis to persist a fixed number of blocks (by default,
 3000). 
 
-View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.io)
+View the Network Health Monitor for the [Ethereum MainNet](https://net.ethstats.io).
 
 !!! note 
-     The EthStats Lite Block Explorer is an [Alethio product](https://aleth.io/).
+    The EthStats Lite Block Explorer is an [Alethio product](https://aleth.io/).
+    
+    Static local ports 80 and 3000 are used in the example of [running the Lite Network Health Monitor 
+    for a Pantheon Node](#running-lite-network-health-monitor-for-a-pantheon-node).  
 
 ## Statistics
 
@@ -76,7 +79,7 @@ Start the server using in-memory persistence:
 3. Use the provided `docker-compose` file to start the server: 
 
     ```bash
-    docker-compose up
+    docker-compose up -d
     ```
    
 !!! tip
@@ -88,7 +91,7 @@ Start the server using in-memory persistence:
 Start Pantheon in development mode with Websockets enabled:
 
 ```bash
-docker run -p 8546:8546 --mount type=bind,source=/<pantheondata-path>,target=/var/lib/pantheon pegasyseng/pantheon:latest --miner-enabled --miner-coinbase fe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins="all" --rpc-ws-enabled --network=dev
+docker run --rm -p 8546:8546 pegasyseng/pantheon:latest --miner-enabled --miner-coinbase fe3b557e8fb62b89f4916b721be55ceb828dbd73 --rpc-http-cors-origins="all" --rpc-ws-enabled --network=dev
 ```
 
 Where `<pantheondata-path>` is the volume to which the node data is saved. 
@@ -98,12 +101,11 @@ Where `<pantheondata-path>` is the volume to which the node data is saved.
 Start the client for the Pantheon node:  
 
 ```bash
-docker run -it --restart always --net host -v /<configurationfiles-path>/opt/ethstats-cli/:/root/.config/configstore/ alethio/ethstats-cli --register --account-email <email> --node-name <node_name> --server-url http://localhost:3000 --client-url ws://127.0.0.1:8546
+docker run -d --rm --net host alethio/ethstats-cli --register --account-email <email> --node-name <node_name> --server-url http://localhost:3000 --client-url ws://127.0.0.1:8546
 ```
 
 Where: 
 
-* `<configurationfiles-path>` is the volume where the client configuration files are saved in the `opt/ethstats-cli` directory. 
 * `--server-url` specifies [your server](#1-server). The default is the server that consumes data for the Ethereum MainNet.
 * `--register` specifies the registration of the Pantheon node is done automatically with the specified `<email>` and `<node_name>`. 
 Registering the node is only required the first time the client is started for the node.
@@ -115,5 +117,24 @@ To display the Network Health Monitor dashboard, open [`localhost`](http://local
 
 ### Stopping and Cleaning Up Resources
 
-When you've finished running the Network Health Monitor, stop and delete the containers.  
+When you've finished running the Network Health Monitor:
 
+1. Stop Pantheon using ++ctrl+c++.  
+
+1. Stop the server and remove containers and volumes: 
+
+    ```bash
+    docker-compose down -v
+    ```  
+   
+1. Obtain client container ID: 
+
+    ```bash
+    docker ps 
+    ```
+  
+1. Stop the client and remove container: 
+   
+    ```bash
+    docker rm -f <id>
+    ```
